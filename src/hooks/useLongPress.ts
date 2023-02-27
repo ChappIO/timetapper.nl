@@ -29,6 +29,7 @@ export default function useLongPress(callback = () => {
         onTouchStart: start,
         onTouchEnd: stop,
         onContextMenu: (e: any) => {
+            console.log('hi');
             e.preventDefault();
         },
     };
