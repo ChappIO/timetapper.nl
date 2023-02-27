@@ -60,27 +60,38 @@ export const useStore = create(
                 ))
             })),
             start: (activityId: string) => set((state) => {
-                const logs = [...state.logs, {
+                const logs = [...state.logs];
+                const currentTask = state.currentTask();
+                if (currentTask) {
+                    logs.pop();
+                    logs.push({
+                        ...currentTask,
+                        end: Date.now()
+                    });
+                }
+
+                logs.push({
                     id: uuid(),
                     activityId,
                     start: Date.now(),
-                }]
+                });
                 return {
                     logs
                 }
             }),
             stop: () => set((state) => {
-                const logs = state.logs;
-                const last = logs.pop();
-                if (!last) {
-                    return {};
+                const currentTask = state.currentTask();
+                if (currentTask) {
+                    const logs = [...state.logs];
+                    logs.pop();
+                    return {
+                        logs: [...logs, {
+                            ...currentTask,
+                            end: Date.now()
+                        }]
+                    }
                 }
-                return {
-                    logs: [
-                        ...logs,
-                        {...last, end: Date.now()}
-                    ]
-                }
+                return {};
             }),
             reset: () => set({logs: []})
         }),
