@@ -1,5 +1,5 @@
 import {create} from "zustand";
-import {createJSONStorage, persist} from 'zustand/middleware'
+import {persist} from 'zustand/middleware'
 import {v4 as uuid} from "uuid";
 
 
@@ -18,11 +18,12 @@ export interface Log {
 export interface State {
     activities: Activity[],
     logs: Log[];
+    currentTask: () => Log | undefined;
     addActivity: () => void;
     start: (activityId: string) => void;
     stop: () => void;
 
-    getActive(): string | false;
+    reset(): void;
 }
 
 export const useStore = create(
@@ -30,39 +31,47 @@ export const useStore = create(
         (set, get): State => ({
             activities: [],
             logs: [],
-            addActivity() {
-                set({activities: [...get().activities, {id: uuid(), name: 'New'}]})
-            },
-            start(activityId: string) {
-                get().stop();
-                set({
-                    logs: [...get().logs, {
-                        id: uuid(),
-                        activityId,
-                        start: Date.now()
-                    }]
-                })
-            },
-            stop() {
+            currentTask: () => {
                 const logs = get().logs;
-                const lastLog = logs[logs.length - 1];
-                if (lastLog && !lastLog.end) {
-                    lastLog.end = Date.now();
+                if (logs.length === 0) {
+                    return undefined;
                 }
+                const last = logs[logs.length - 1];
+                if (last.end) {
+                    return undefined;
+                }
+                return last;
             },
-            getActive(): string | false {
-                const logs = get().logs;
-                const lastLog = logs[logs.length - 1];
-                if (lastLog && !lastLog.end) {
-                    return lastLog.activityId;
-                } else {
-                    return false;
+            addActivity: () => set((state) => ({
+                activities: [...state.activities, {id: uuid(), name: 'New'}]
+            })),
+            start: (activityId: string) => set((state) => {
+                const logs = [...state.logs, {
+                    id: uuid(),
+                    activityId,
+                    start: Date.now(),
+                }]
+                return {
+                    logs
                 }
-            }
+            }),
+            stop: () => set((state) => {
+                const logs = state.logs;
+                const last = logs.pop();
+                if (!last) {
+                    return {};
+                }
+                return {
+                    logs: [
+                        ...logs,
+                        {...last, end: Date.now()}
+                    ]
+                }
+            }),
+            reset: () => set({logs: []})
         }),
         {
             name: 'timetapper-storage',
-            storage: createJSONStorage(() => localStorage),
         }
     )
 );

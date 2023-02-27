@@ -2,6 +2,7 @@ import NoSleep from 'nosleep.js';
 import React, {useEffect} from 'react';
 import {Activities} from "./components/Activities";
 import {Controls} from "./components/Controls";
+import {Timer} from "./components/Timer";
 
 const noSleep = new NoSleep();
 
@@ -15,6 +16,7 @@ export const App = () => {
     return (
         <>
             <Activities/>
+            <Timer/>
             <Controls/>
         </>
     );
