@@ -1,20 +1,24 @@
 import {useEffect, useState} from "react";
 import {useStore} from "../store";
 import {renderTimeSince} from "../lib/renderTimeSince";
-
+import {classNames} from "../lib/classNames";
 
 export const Timer = () => {
     const [display, setDisplay] = useState('');
+    const [blink, setBlink] = useState(true);
     const start = useStore(state => state.currentTask()?.start);
 
     useEffect(() => {
         const timer = setInterval(() => {
+            setBlink(prev => !prev);
             if (start) {
                 setDisplay(renderTimeSince(start, Date.now()));
             } else {
                 setDisplay('--:--');
+                setBlink(false);
             }
-        }, 100);
+
+        }, 1000);
 
         return () => clearInterval(timer);
     }, [start]);
@@ -22,7 +26,9 @@ export const Timer = () => {
     return (
         <div>
             <div style={{marginBottom: 12, textAlign: 'center', fontSize: '2rem'}}>
-                <pre><span className="icon"><i className="fas fa-stopwatch"/></span> {display}</pre>
+                <pre><span className="icon"><i className="fas fa-stopwatch"/></span>{' '}
+                    <span {...classNames(blink && 'has-text-grey-lighter')}>{display}</span>
+                </pre>
             </div>
         </div>
     );

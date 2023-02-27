@@ -27,7 +27,14 @@ export const Controls = () => {
             }}>
                 Stop
             </button>
-            <button className="button is-info" onClick={() => {
+            <button className="button is-info" disabled={state.logs.length === 0} onClick={() => {
+                const logs = [...state.logs];
+                const last = logs[logs.length - 1];
+                // forcefully end last action
+                if (!last.end) {
+                    last.end = Date.now();
+                }
+                // now export
                 const data = state.logs.map(entry => ([
                     state.activities.find(a => entry.activityId === a.id)?.name || '',
                     entry.end ? renderTimeSince(entry.start, entry.end) : ''
