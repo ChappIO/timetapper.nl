@@ -21,6 +21,8 @@ export interface State {
     currentTask: () => Log | undefined;
     addActivity: () => void;
     start: (activityId: string) => void;
+    rename: (activityId: string, name: string) => void;
+    deleteActivity: (activityId: string) => void;
     stop: () => void;
 
     reset(): void;
@@ -44,6 +46,18 @@ export const useStore = create(
             },
             addActivity: () => set((state) => ({
                 activities: [...state.activities, {id: uuid(), name: 'New'}]
+            })),
+            deleteActivity: (activityId) => set((state) => ({
+                activities: state.activities.filter(a => a.id !== activityId),
+                logs: state.logs.filter(l => l.activityId !== activityId)
+            })),
+            rename: (activityId, name) => set((state) => ({
+                activities: state.activities.map(activity => (
+                    activity.id === activityId ? ({
+                        ...activity,
+                        name
+                    }) : activity
+                ))
             })),
             start: (activityId: string) => set((state) => {
                 const logs = [...state.logs, {

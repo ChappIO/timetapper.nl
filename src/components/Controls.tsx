@@ -21,10 +21,7 @@ export const Controls = () => {
             <button className="button is-success" onClick={() => addActivity()}>
                 Add
             </button>
-            <button className="button is-danger" onClick={() => {
-                console.log('uh');
-                stop();
-            }}>
+            <button className="button is-danger" onClick={() => stop()}>
                 Stop
             </button>
             <button className="button is-info" disabled={state.logs.length === 0} onClick={() => {

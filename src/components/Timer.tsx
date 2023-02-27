@@ -9,16 +9,19 @@ export const Timer = () => {
     const start = useStore(state => state.currentTask()?.start);
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setBlink(prev => !prev);
+        function update() {
             if (start) {
+                setBlink(prev => !prev);
                 setDisplay(renderTimeSince(start, Date.now()));
             } else {
                 setDisplay('--:--');
                 setBlink(false);
             }
+        }
 
-        }, 1000);
+        const timer = setInterval(update, 1000);
+
+        update();
 
         return () => clearInterval(timer);
     }, [start]);
