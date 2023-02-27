@@ -1,0 +1,22 @@
+name: Deploy to timetapper.nl
+
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 19
+      - run: |
+          yarn install --frozen-lockfile
+          yarn build
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.GH_PAGES_DEPLOY_KEY }}
+          publish_dir: ./build
+          cname: www.timetapper.nl
